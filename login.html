@@ -1,0 +1,106 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Login - Ahrefs Script</title>
+    <link rel="stylesheet" href="css/style.css">
+</head>
+<body>
+    <div class="container login-container">
+        <div class="login-card">
+            <div class="login-logo-container">
+                <img src="image.png" alt="Ahrefwaly Logo" class="login-logo">
+            </div>
+            <h1>Login</h1>
+            <form id="loginForm">
+                <div class="form-group">
+                    <label for="email">Email</label>
+                    <input type="email" id="email" name="email" required autocomplete="email">
+                </div>
+                <div class="form-group">
+                    <label for="password">Password</label>
+                    <div class="password-wrapper">
+                        <input type="password" id="password" name="password" required autocomplete="current-password">
+                        <span class="password-toggle" onclick="togglePassword()">👁️</span>
+                    </div>
+                </div>
+                <div class="form-group">
+                    <label for="role">Role</label>
+                    <select id="role" name="role" required>
+                        <option value="">Select Role</option>
+                        <option value="SUPER_ADMIN">Super Admin</option>
+                        <option value="RESELLER">Reseller</option>
+                        <option value="USER">User</option>
+                    </select>
+                </div>
+                <button type="submit" class="btn-primary">Login</button>
+                <div id="error" class="error-message"></div>
+            </form>
+        </div>
+    </div>
+    <script src="js/auth.js"></script>
+    <script src="js/config.js"></script>
+    <script>
+        function togglePassword() {
+            const passwordInput = document.getElementById('password');
+            const toggle = document.querySelector('.password-toggle');
+            if (passwordInput.type === 'password') {
+                passwordInput.type = 'text';
+                toggle.textContent = '🙈';
+            } else {
+                passwordInput.type = 'password';
+                toggle.textContent = '👁️';
+            }
+        }
+
+        document.getElementById('loginForm').addEventListener('submit', async (e) => {
+            e.preventDefault();
+            const email = document.getElementById('email').value;
+            const password = document.getElementById('password').value;
+            const role = document.getElementById('role').value;
+            const errorDiv = document.getElementById('error');
+            errorDiv.textContent = '';
+
+            if (!role) {
+                errorDiv.textContent = 'Please select a role';
+                return;
+            }
+
+            try {
+                const response = await fetch(`${API_BASE}/auth/login`, {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({ email, password, role })
+                });
+
+                const data = await response.json();
+
+                if (response.ok && data.token && data.role) {
+                    localStorage.setItem('token', data.token);
+                    localStorage.setItem('role', data.role);
+                    redirectByRole(data.role);
+                } else {
+                    errorDiv.textContent = data.message || 'Invalid credentials';
+                }
+            } catch (error) {
+                errorDiv.textContent = 'Failed to connect to server. Please try again.';
+            }
+        });
+
+        function redirectByRole(role) {
+            const routes = {
+                'SUPER_ADMIN': 'super-admin.html',
+                'RESELLER': 'reseller.html',
+                'USER': 'user-dashboard.html'
+            };
+            window.location.href = routes[role] || 'login.html';
+        }
+
+        if (localStorage.getItem('token')) {
+            redirectByRole(localStorage.getItem('role'));
+        }
+    </script>
+</body>
+</html>
+

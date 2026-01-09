@@ -1,0 +1,184 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Super Admin - Ahrefs Script</title>
+    <link rel="stylesheet" href="css/style.css">
+</head>
+<body>
+    <nav class="navbar">
+        <div class="nav-content">
+            <button class="hamburger-menu" onclick="toggleMobileMenu()" aria-label="Toggle menu">
+                <span></span>
+                <span></span>
+                <span></span>
+            </button>
+            <div class="logo-container">
+                <img src="image.png" alt="Ahrefwaly Logo" class="logo">
+            </div>
+            <h2>Super Admin Dashboard</h2>
+            <button onclick="logout()" class="btn-secondary">Logout</button>
+        </div>
+    </nav>
+    
+    <!-- Mobile Navigation Overlay -->
+    <div class="mobile-menu-overlay" id="mobileMenuOverlay" onclick="closeMobileMenu()">
+        <div class="mobile-menu" onclick="event.stopPropagation()">
+            <div class="mobile-menu-header">
+                <h3>Navigation</h3>
+                <button class="mobile-menu-close" onclick="closeMobileMenu()" aria-label="Close menu">&times;</button>
+            </div>
+            <div class="mobile-menu-content">
+                <a href="#users" class="mobile-menu-item active" onclick="scrollToSection('users'); closeMobileMenu();">Users</a>
+                <a href="#settings" class="mobile-menu-item" onclick="scrollToSection('settings'); closeMobileMenu();">Settings</a>
+            </div>
+        </div>
+    </div>
+    <div class="container">
+        <div class="dashboard">
+            <div class="dashboard-header" id="users">
+                <h1>User Management</h1>
+                <div class="action-buttons">
+                    <button onclick="openModal('addUser')" class="btn-primary">Add User</button>
+                    <button onclick="openModal('addReseller')" class="btn-primary">Add Reseller</button>
+                </div>
+            </div>
+
+            <!-- Desktop Table View -->
+            <div class="table-container table-desktop">
+                <table id="usersTable">
+                    <thead>
+                        <tr>
+                            <th>Name</th>
+                            <th>Email</th>
+                            <th>Role</th>
+                            <th>Status</th>
+                            <th>Keywords Used</th>
+                            <th>Keywords Left</th>
+                            <th>Start Date</th>
+                            <th>Expire Date</th>
+                            <th>Actions</th>
+                        </tr>
+                    </thead>
+                    <tbody id="usersTableBody">
+                    </tbody>
+                </table>
+            </div>
+
+            <!-- Mobile Card View -->
+            <div class="users-cards" id="usersCards">
+                <!-- Cards will be populated by JavaScript -->
+            </div>
+
+            <div class="settings-section" id="settings">
+                <h2>Settings</h2>
+                <div class="settings-grid">
+                    <div class="setting-card">
+                        <h3>Cookie Management</h3>
+                        <textarea id="cookieData" placeholder="Enter cookie data" rows="5"></textarea>
+                        <button onclick="saveCookies()" class="btn-primary">Save Cookies</button>
+                    </div>
+                    <div class="setting-card">
+                        <h3>Branding</h3>
+                        <input type="text" id="brandingText" placeholder="Footer branding text">
+                        <button onclick="saveBranding()" class="btn-primary">Save Branding</button>
+                    </div>
+                    <div class="setting-card">
+                        <h3>IP Management</h3>
+                        <div class="form-group">
+                            <label>
+                                <input type="checkbox" id="ipRestrictionEnabled" onchange="toggleIpRestriction()">
+                                Enable IP Restriction
+                            </label>
+                        </div>
+                        <div class="form-group">
+                            <label>IP Whitelist (one IP per line)</label>
+                            <textarea id="ipWhitelist" placeholder="192.168.1.1&#10;10.0.0.1" rows="6"></textarea>
+                        </div>
+                        <div class="form-group">
+                            <label>Static IP (optional)</label>
+                            <input type="text" id="staticIP" placeholder="192.168.1.100">
+                        </div>
+                        <button onclick="saveIpSettings()" class="btn-primary">Save IP Settings</button>
+                        <div id="ipSettingsError" class="error-message"></div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <div id="addUserModal" class="modal">
+        <div class="modal-content">
+            <span class="close" onclick="closeModal('addUser')">&times;</span>
+            <h2>Add User</h2>
+            <form id="addUserForm" onsubmit="addUser(event)">
+                <div class="form-group">
+                    <label>Name</label>
+                    <input type="text" name="name" required>
+                </div>
+                <div class="form-group">
+                    <label>Email</label>
+                    <input type="email" name="email" required>
+                </div>
+                <div class="form-group">
+                    <label>Password</label>
+                    <input type="password" name="password" required>
+                </div>
+                <div class="form-group">
+                    <label>Keyword Limit</label>
+                    <input type="number" name="keywordLimit" required>
+                </div>
+                <div class="form-group">
+                    <label>Start Date</label>
+                    <input type="date" name="startDate" required>
+                </div>
+                <div class="form-group">
+                    <label>Expire Date</label>
+                    <input type="date" name="expireDate" required>
+                </div>
+                <button type="submit" class="btn-primary">Add User</button>
+                <div id="addUserError" class="error-message"></div>
+            </form>
+        </div>
+    </div>
+
+    <div id="addResellerModal" class="modal">
+        <div class="modal-content">
+            <span class="close" onclick="closeModal('addReseller')">&times;</span>
+            <h2>Add Reseller</h2>
+            <form id="addResellerForm" onsubmit="addReseller(event)">
+                <div class="form-group">
+                    <label>Name</label>
+                    <input type="text" name="name" required>
+                </div>
+                <div class="form-group">
+                    <label>Email</label>
+                    <input type="email" name="email" required>
+                </div>
+                <div class="form-group">
+                    <label>Password</label>
+                    <input type="password" name="password" required>
+                </div>
+                <div class="form-group">
+                    <label>Keyword Limit</label>
+                    <input type="number" name="keywordLimit" required>
+                </div>
+                <div class="form-group">
+                    <label>Start Date</label>
+                    <input type="date" name="startDate" required>
+                </div>
+                <div class="form-group">
+                    <label>Expire Date</label>
+                    <input type="date" name="expireDate" required>
+                </div>
+                <button type="submit" class="btn-primary">Add Reseller</button>
+                <div id="addResellerError" class="error-message"></div>
+            </form>
+        </div>
+    </div>
+
+    <script src="js/auth.js"></script>
+    <script src="js/super-admin.js"></script>
+</body>
+</html>
