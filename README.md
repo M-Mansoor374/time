@@ -1,109 +1,144 @@
-# Ahrefs Script (ahrf) - Full Stack Application
+# Ahrefs Script - Full Stack Application
 
-A complete full-stack application for managing Ahrefs tool usage with role-based access control (Super Admin, Reseller, User).
+A complete user management system with role-based access control (Super Admin, Reseller, User) and Ahrefs tool integration.
 
 ## Features
 
-- 🔐 JWT Authentication with role-based access
-- 👥 User Management (Create, Read, Update, Delete)
-- 📊 Keyword Usage Tracking
-- 🌐 IP Whitelist Management
-- 🎨 Modern, Mobile-Responsive UI
-- 📱 Mobile-First Design
+- 🔐 JWT-based authentication with role-based access control
+- 👥 User management (Create, Read, Update, Delete)
+- 📊 Keyword usage tracking and limits
+- 🎨 Modern, responsive UI with mobile-first design
+- 🌐 IP whitelisting and static IP management
+- 🍪 Cookie and branding management
 
 ## Tech Stack
 
 - **Frontend**: HTML, CSS, Vanilla JavaScript
 - **Backend**: Node.js, Express.js
 - **Database**: MongoDB Atlas
-- **Process Manager**: PM2
-- **Authentication**: JWT (JSON Web Tokens)
+- **Deployment**: Vercel
 
-## Quick Start (Development)
+## Local Development
 
-1. **Clone the repository**
-   ```bash
-   git clone https://github.com/M-Mansoor374/time.git
-   cd time
-   ```
+### Prerequisites
 
-2. **Install dependencies**
-   ```bash
-   npm install
-   ```
+- Node.js 18.x or higher
+- MongoDB Atlas account (or local MongoDB)
 
-3. **Configure environment variables**
-   ```bash
-   cp .env.example .env
-   # Edit .env with your MongoDB connection string and JWT secret
-   ```
+### Setup
 
-4. **Create admin user** (First time only)
-   ```bash
-   node create-admin.js
-   ```
+1. Clone the repository:
+```bash
+git clone <repository-url>
+cd time
+```
 
-5. **Start development server**
-   ```bash
-   npm run dev
-   ```
+2. Install dependencies:
+```bash
+npm install
+```
 
-6. **Access the application**
-   - Open `http://localhost:5000` in your browser
+3. Create `.env` file in the root directory:
+```env
+MONGO_URI=your_mongodb_connection_string
+JWT_SECRET=your_jwt_secret_key
+PORT=5000
+```
 
-## Production Deployment
+4. Create initial Super Admin user:
+```bash
+node create-admin.js
+```
 
-See [DEPLOYMENT.md](DEPLOYMENT.md) for complete VPS deployment instructions using PuTTY.
+5. Start the development server:
+```bash
+npm run dev
+```
 
-### Quick Deployment Steps
+6. Open `http://localhost:5000` in your browser (or serve HTML files via a static server)
 
-1. Connect to your VPS via SSH/PuTTY
-2. Clone the repository
-3. Run the deployment script:
-   ```bash
-   chmod +x deploy.sh
-   ./deploy.sh
-   ```
-4. Configure your `.env` file with production values
-5. Application will be running on port 5000 (or your configured port)
+## Deployment on Vercel
+
+### Prerequisites
+
+- Vercel account
+- GitHub repository
+- MongoDB Atlas connection string
+
+### Steps
+
+1. Push code to GitHub:
+```bash
+git init
+git add .
+git commit -m "Initial commit"
+git remote add origin <your-github-repo-url>
+git push -u origin main
+```
+
+2. Deploy on Vercel:
+   - Go to [Vercel Dashboard](https://vercel.com)
+   - Click "New Project"
+   - Import your GitHub repository
+   - Configure environment variables:
+     - `MONGO_URI`: Your MongoDB Atlas connection string
+     - `JWT_SECRET`: Your JWT secret key
+   - Deploy
+
+3. After deployment:
+   - Your API will be available at `https://your-project.vercel.app/api/*`
+   - Frontend will be served from the root domain
+   - Make sure to create the initial Super Admin user after first deployment
+
+### Environment Variables on Vercel
+
+Add these in Vercel Dashboard → Project Settings → Environment Variables:
+
+- `MONGO_URI`: MongoDB connection string
+- `JWT_SECRET`: Secret key for JWT tokens
 
 ## Project Structure
 
 ```
-ahrf/
-├── src/
-│   ├── app.js              # Express app configuration
-│   ├── server.js           # Server entry point
-│   ├── config/
-│   │   └── db.js          # MongoDB connection
-│   ├── models/            # Mongoose models
-│   │   ├── User.js
-│   │   ├── Branding.js
-│   │   ├── Cookie.js
-│   │   └── IpSettings.js
-│   ├── routes/            # API routes
-│   │   ├── auth.js
-│   │   ├── users.js
-│   │   ├── tool.js
-│   │   ├── settings.js
-│   │   └── ipSettings.js
-│   └── middleware/        # Custom middleware
-│       ├── auth.js
-│       ├── role.js
-│       ├── tool.js
-│       └── ipCheck.js
-├── js/                    # Frontend JavaScript
-│   ├── config.js         # API configuration
-│   ├── auth.js
-│   ├── super-admin.js
-│   ├── reseller.js
-│   └── user-dashboard.js
+.
+├── api/
+│   └── index.js              # Vercel serverless function handler
 ├── css/
-│   └── style.css         # Global styles
-├── *.html                # Frontend pages
-├── ecosystem.config.cjs  # PM2 configuration
-├── package.json
-└── .env.example          # Environment variables template
+│   └── style.css             # Global styles
+├── js/
+│   ├── auth.js               # Authentication utilities
+│   ├── config.js             # API configuration
+│   ├── super-admin.js        # Super Admin dashboard logic
+│   ├── reseller.js           # Reseller dashboard logic
+│   └── user-dashboard.js     # User dashboard logic
+├── src/
+│   ├── config/
+│   │   └── db.js             # Database connection
+│   ├── middleware/
+│   │   ├── auth.js           # JWT authentication
+│   │   ├── role.js           # Role-based authorization
+│   │   ├── ipCheck.js        # IP whitelist middleware
+│   │   └── tool.js           # Tool access validation
+│   ├── models/
+│   │   ├── User.js           # User model
+│   │   ├── Cookie.js         # Cookie model
+│   │   ├── Branding.js       # Branding model
+│   │   └── IpSettings.js     # IP settings model
+│   ├── routes/
+│   │   ├── auth.js           # Authentication routes
+│   │   ├── users.js          # User management routes
+│   │   ├── tool.js           # Tool usage routes
+│   │   ├── settings.js       # Settings routes
+│   │   └── ipSettings.js     # IP settings routes
+│   ├── app.js                # Express app configuration
+│   └── server.js             # Server entry point (local dev)
+├── login.html                # Login page
+├── super-admin.html          # Super Admin dashboard
+├── reseller.html             # Reseller dashboard
+├── user-dashboard.html       # User dashboard
+├── index.html                # Root redirect
+├── vercel.json               # Vercel configuration
+└── package.json              # Dependencies and scripts
 ```
 
 ## API Endpoints
@@ -112,59 +147,33 @@ ahrf/
 - `POST /api/auth/login` - User login
 - `GET /api/auth/me` - Get current user
 
-### Users (Protected)
+### User Management
 - `POST /api/users` - Create user (Super Admin, Reseller)
 - `GET /api/users` - List users
 - `PUT /api/users/:id` - Update user
 - `DELETE /api/users/:id` - Delete user (Super Admin only)
 
-### Tool Usage (User only)
+### Tool Usage
 - `POST /api/tool/use` - Increment keyword usage
 - `GET /api/tool/usage` - Get usage statistics
 
-### Settings (Super Admin)
-- `GET/POST /api/admin/cookies` - Cookie management
-- `GET/POST /api/admin/branding` - Branding text
-- `GET/PUT /api/superadmin/settings` - IP whitelist settings
+### Settings
+- `GET /api/admin/cookies` - Get cookies (Super Admin)
+- `POST /api/admin/cookies` - Save cookies (Super Admin)
+- `GET /api/branding` - Get branding text
+- `POST /api/admin/branding` - Save branding (Super Admin)
 
-## Environment Variables
-
-```env
-MONGO_URI=your_mongodb_atlas_connection_string
-JWT_SECRET=your_jwt_secret_key
-PORT=5000
-NODE_ENV=production
-```
-
-## Scripts
-
-- `npm start` - Start production server
-- `npm run dev` - Start development server with auto-reload
-- `npm run pm2:start` - Start with PM2
-- `npm run pm2:restart` - Restart PM2 process
-- `npm run pm2:logs` - View PM2 logs
+### IP Settings
+- `GET /api/superadmin/settings` - Get IP settings
+- `PUT /api/superadmin/settings` - Update IP settings
 
 ## Roles
 
-- **SUPER_ADMIN**: Full access, can create resellers and users, manage IP whitelist
-- **RESELLER**: Can create and manage users only
-- **USER**: Can use the tool, view own usage statistics
-
-## Security Features
-
-- Password hashing with bcryptjs
-- JWT token-based authentication
-- IP whitelist protection (Super Admin routes)
-- Role-based access control
-- CORS enabled
+- **SUPER_ADMIN**: Full system access, can create resellers and users, manage IP settings, cookies, and branding
+- **RESELLER**: Can create and manage users, view own users
+- **USER**: Can use the Ahrefs tool, view own usage statistics
 
 ## License
 
 MIT
-
-## Support
-
-For deployment issues, refer to [DEPLOYMENT.md](DEPLOYMENT.md) or check the logs:
-- PM2 logs: `pm2 logs ahrf-backend`
-- Application logs in `logs/` directory
 

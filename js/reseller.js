@@ -1,6 +1,6 @@
 requireAuth('RESELLER');
 
-const API_BASE = 'http://localhost:5000/api';
+// API_BASE is loaded from config.js (must be loaded before this file)
 
 function getAuthHeaders() {
     return {

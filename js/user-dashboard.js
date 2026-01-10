@@ -1,6 +1,6 @@
 requireAuth('USER');
 
-const API_BASE = 'http://localhost:5000/api';
+// API_BASE is loaded from config.js (must be loaded before this file)
 const PROXY_URL = 'ahrefs-placeholder.html'; // Placeholder page - replace with actual proxy URL when ready
 
 function getAuthHeaders() {
