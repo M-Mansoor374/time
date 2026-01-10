@@ -7,8 +7,8 @@
     "node": ">=18.x"
   },
   "scripts": {
-    "start": "node src/server.js",
-    "dev": "node --watch src/server.js",
+    "start": "node init && node src/server.js",
+    "dev": "node init && node --watch src/server.js",
     "vercel-build": "echo 'Build complete'"
   },
   "dependencies": {
@@ -23,4 +23,3 @@
     "@vercel/node": "^3.0.7"
   }
 }
-
