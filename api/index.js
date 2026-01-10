@@ -1,4 +1,3 @@
-import serverlessHttp from 'serverless-http';
 import app from '../src/app.js';
 import connectDB from '../src/config/db.js';
 import mongoose from 'mongoose';
@@ -41,14 +40,12 @@ ensureDBConnection().catch(err => {
     console.error('Initial DB connection failed:', err);
 });
 
-// Wrap Express app with serverless-http for Vercel
-// serverless-http properly handles Express routing in serverless environments
-const handler = serverlessHttp(app, {
-    binary: ['image/*', 'application/pdf']
-});
-
 // Vercel serverless function handler
+// Vercel's @vercel/node automatically handles Express apps
 export default async (req, res) => {
+    // Log request for debugging
+    console.log(`[${req.method}] ${req.url}`);
+    
     // Ensure database is connected before handling request
     try {
         await ensureDBConnection();
@@ -63,8 +60,8 @@ export default async (req, res) => {
         }
     }
     
-    // Use serverless-http handler which properly handles Express routing
-    // This ensures paths are correctly matched with Express routes
-    return handler(req, res);
+    // Vercel's @vercel/node builder automatically wraps Express apps
+    // The app handles routing internally with Express routes
+    return app(req, res);
 };
 
