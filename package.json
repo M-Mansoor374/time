@@ -5,7 +5,11 @@
   "main": "src/server.js",
   "scripts": {
     "start": "node src/server.js",
-    "dev": "node --watch src/server.js"
+    "dev": "node --watch src/server.js",
+    "pm2:start": "pm2 start ecosystem.config.cjs",
+    "pm2:stop": "pm2 stop ahrf-backend",
+    "pm2:restart": "pm2 restart ahrf-backend",
+    "pm2:logs": "pm2 logs ahrf-backend"
   },
   "dependencies": {
     "bcryptjs": "^2.4.3",
