@@ -5,6 +5,7 @@ import mongoose from 'mongoose';
 // Connect to database on module load (shared across function invocations)
 let dbPromise = null;
 let isConnecting = false;
+let connectionAttempted = false;
 
 const ensureDBConnection = async () => {
     // Check if already connected
@@ -19,49 +20,62 @@ const ensureDBConnection = async () => {
     
     if (!dbPromise) {
         isConnecting = true;
+        connectionAttempted = true;
         dbPromise = connectDB()
             .then(() => {
                 isConnecting = false;
-                console.log('Database connected successfully');
+                console.log('✅ Database connected successfully');
                 return true;
             })
             .catch(err => {
-                console.error('Database connection error:', err);
+                console.error('❌ Database connection error:', err.message);
                 dbPromise = null;
                 isConnecting = false;
-                throw err;
+                // Don't throw - let requests proceed, but they'll handle the error
+                return false;
             });
     }
     return dbPromise;
 };
 
-// Initialize database connection (non-blocking)
-ensureDBConnection().catch(err => {
-    console.error('Initial DB connection failed:', err);
-});
-
 // Vercel serverless function handler
-// Vercel's @vercel/node automatically handles Express apps
 export default async (req, res) => {
     // Log request for debugging
-    console.log(`[${req.method}] ${req.url}`);
+    console.log(`[${req.method}] ${req.url || req.path}`);
     
-    // Ensure database is connected before handling request
+    // Handle OPTIONS requests for CORS preflight immediately
+    if (req.method === 'OPTIONS') {
+        res.setHeader('Access-Control-Allow-Origin', '*');
+        res.setHeader('Access-Control-Allow-Methods', 'GET, POST, PUT, DELETE, PATCH, OPTIONS');
+        res.setHeader('Access-Control-Allow-Headers', 'Content-Type, Authorization');
+        return res.status(200).end();
+    }
+    
+    // Try to ensure database connection (non-blocking for routes that don't need DB)
+    // This allows the health check to work even if DB is down
+    if (connectionAttempted === false) {
+        ensureDBConnection().catch(err => {
+            console.error('Initial DB connection attempt failed:', err.message);
+        });
+    } else {
+        // Check connection status without blocking
+        ensureDBConnection().catch(() => {
+            // Connection will be retried on next request
+        });
+    }
+    
+    // Handle the Express app
+    // Wrap in try-catch to handle any unexpected errors
     try {
-        await ensureDBConnection();
+        return await app(req, res);
     } catch (error) {
-        console.error('DB connection check failed:', error);
-        // Only return error if connection is definitely not established
-        if (mongoose.connection.readyState === 0 && !isConnecting) {
-            return res.status(503).json({ 
-                error: 'Database connection failed', 
-                message: 'Service temporarily unavailable'
+        console.error('Express app error:', error);
+        if (!res.headersSent) {
+            return res.status(500).json({
+                error: 'Internal server error',
+                message: error.message
             });
         }
     }
-    
-    // Vercel's @vercel/node builder automatically wraps Express apps
-    // The app handles routing internally with Express routes
-    return app(req, res);
 };
 
