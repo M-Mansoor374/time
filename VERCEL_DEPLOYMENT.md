@@ -2,7 +2,7 @@
 
 ## ✅ Project Status: Ready for Vercel Deployment
 
-All changes have been pushed to GitHub. The project is now configured for Vercel deployment.
+All changes have been pushed to GitHub. The project is now configured for Vercel deployment using Vercel's native Express support with ES modules.
 
 ## Configuration Summary
 
